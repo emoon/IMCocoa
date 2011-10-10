@@ -1,29 +1,28 @@
 
-#import <Cocoa/Cocoa.h>
+#include <imcocoa/imcocoa.h>
+#include <stdio.h>
 
-@interface MyWindow : NSWindow
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void uiCallback(void* parent, void* userData)
 {
-	NSView* myView;
+	if (IMCocoa_button("testing", 10, 10, 40, 20))
+	{
+		printf("Pressed button!\n");
+	}
 }
 
-@end
-
-@implementation MyWindow
-@end
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
-  [NSApplication sharedApplication];
-  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	IMCocoa_appCreate();
+	IMCocoa_windowCreate("foo", uiCallback, 0);
 
-  NSUInteger style = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask;
-  NSWindow* window = [[MyWindow alloc] initWithContentRect:NSMakeRect(0,0,400,400) styleMask:style backing:NSBackingStoreBuffered defer:NO];
-  [window makeKeyAndOrderFront:nil];
+	IMCocoa_appRun();
 
-  [pool drain];
+	IMCocoa_appDestroy();
 
-  [NSApp run];
-
-  return 0;
+	return 0;
 }
 
