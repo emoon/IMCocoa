@@ -3,6 +3,77 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef struct KeyValueLookup 
+{
+	uint64_t key[2048];
+	uint64_t value[2048];
+	int count;
+} KeyValueLookup;
+
+static struct KeyValueLookup g_controlWindowLut; 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void Lookup_addEntry(KeyValueLookup* lut, uint64_t key, uint64_t value)
+{
+	if (lut->count >= 2048)
+	{
+		printf("list is full\n");
+		return;
+	}
+
+	int offset = lut->count++;
+
+	lut->key[offset] = key;
+	lut->value[offset] = value;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+static void Lookup_removeEntry(KeyValueLookup* lut, uint64_t key, uint64_t value)
+{
+	for (int i = 0, count = lut->count; i < count; ++i)
+	{
+		if (lut->key[i] == key)
+		{
+			lut->key[i] = lut->key[count - 1];
+			lut->value[i] = lut->value[count - 1];
+			lut->count--;
+			return;
+		}
+	}
+}
+*/
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool Lookup_findEntry(KeyValueLookup* lut, uint64_t key, uint64_t* value)
+{
+	for (int i = 0, count = lut->count; i < count; ++i)
+	{
+		if (lut->key[i] == key)
+		{
+			*value = lut->value[i];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+static void Lookup_addNotExists(KeyValueLookup* lut, uint64_t key, uint64_t value)
+{
+	uint64_t outValue;
+
+	if (!Lookup_findEntry(lut, key, &outValue))
+		Lookup_addEntry(lut, key, value);
+}
+*/
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static NSButton* s_temp = 0;
 static bool s_buttonState = false;
 
@@ -17,8 +88,6 @@ static bool s_buttonState = false;
 }
 @end
 
-static IMCocoaWindow* s_window; // TEMP TEMP  
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface AppController : NSObject<NSApplicationDelegate>
@@ -32,10 +101,19 @@ static IMCocoaWindow* s_window; // TEMP TEMP
 
 - (IBAction)onButtonClick:(id)sender;
 {
-	// TODO Proper way of accessing the window that owns this button
-	// Hacky hack test for now (of course needs proper tables etc to track correct button)
+	// Find window that the button belongs to
+
+	uint64_t value;
+
+	if (!Lookup_findEntry(&g_controlWindowLut, (uint64_t)sender, &value))
+	{
+		printf("Unable to find %p\n", sender);
+		return;
+	}
+
+	IMCocoaWindow* window = (IMCocoaWindow*)value;
 	s_buttonState = true; 	
-	s_window->uiCallback([s_window contentView], s_window->userData);
+	window->uiCallback(window, window->userData);
 }
 @end
 
@@ -119,11 +197,9 @@ void* IMCocoa_windowCreate(const char* name, void (*uiCallback)(void*, void*), v
 	window->uiCallback = uiCallback;
 	window->userData = userData;
 
-	uiCallback([window contentView], userData);
+	uiCallback(window, userData);
 
 	[pool drain];
-
-	s_window = window; // temp
 
 	return window;	
 }
@@ -144,14 +220,16 @@ int IMCocoa_buttonCall(int id, void* parent, const char* name, int x, int y, int
 		return s_buttonState;
 	}
 
-	NSView* view = (NSView*)parent;
+	NSWindow* window = (NSWindow*)parent;
+	NSView* view = [window contentView]; 
 	NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(14, 100, 120, 40)];
 	[button setTitle: @"Test"];
 	[button setBezelStyle:NSRoundedBezelStyle];
 	[button setAction:@selector(onButtonClick:)];
 	[button setTarget:s_controller];
 	[view addSubview:button];  
-	s_temp = button;
+
+	Lookup_addEntry(&g_controlWindowLut, (uint64_t)button, (uint64_t)window);
 
 	return s_buttonState;
 }
