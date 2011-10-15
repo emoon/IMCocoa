@@ -11,6 +11,7 @@ typedef struct KeyValueLookup
 } KeyValueLookup;
 
 static struct KeyValueLookup g_controlWindowLut; 
+static struct KeyValueLookup g_idControlLut; 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,11 +75,6 @@ static void Lookup_addNotExists(KeyValueLookup* lut, uint64_t key, uint64_t valu
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static NSButton* s_temp = 0;
-static bool s_buttonState = false;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 @interface IMCocoaWindow : NSWindow
 {
 	NSView* childContentView;
@@ -112,7 +108,6 @@ static bool s_buttonState = false;
 	}
 
 	IMCocoaWindow* window = (IMCocoaWindow*)value;
-	s_buttonState = true; 	
 	window->uiCallback(window, window->userData);
 }
 @end
@@ -215,14 +210,17 @@ void IMCocoaWindow_destroy(void* handle)
 
 int IMCocoa_buttonCall(int id, void* parent, const char* name, int x, int y, int w, int h)
 {
-	if (s_temp != 0)
+	uint64_t outValue;
+
+	if (Lookup_findEntry(&g_idControlLut, (uint64_t)id, &outValue))
 	{
-		return s_buttonState;
+		NSButton* button = (NSButton*)outValue;
+		return !![button state];
 	}
 
 	NSWindow* window = (NSWindow*)parent;
 	NSView* view = [window contentView]; 
-	NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(14, 100, 120, 40)];
+	NSButton* button = [[NSButton alloc] initWithFrame:NSMakeRect(x, y, w, h)];
 	[button setTitle: @"Test"];
 	[button setBezelStyle:NSRoundedBezelStyle];
 	[button setAction:@selector(onButtonClick:)];
@@ -230,7 +228,8 @@ int IMCocoa_buttonCall(int id, void* parent, const char* name, int x, int y, int
 	[view addSubview:button];  
 
 	Lookup_addEntry(&g_controlWindowLut, (uint64_t)button, (uint64_t)window);
+	Lookup_addEntry(&g_idControlLut, (uint64_t)id, (uint64_t)button);
 
-	return s_buttonState;
+	return !![button state];
 }
 
