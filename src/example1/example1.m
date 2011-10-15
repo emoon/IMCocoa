@@ -10,6 +10,11 @@ static void uiCallback(void* parent, void* userData)
 	{
 		printf("Pressed button!\n");
 	}
+
+	if (IMCocoa_button("testing 2", 10, 50, 40, 20))
+	{
+		printf("Pressed button 2!\n");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
