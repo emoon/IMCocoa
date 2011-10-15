@@ -16,7 +16,7 @@ Program {
 	Name = "example1",
 	Env = { CPPPATH = { "src" }, },
 	Frameworks = { "Cocoa" },
-	Sources = { "src/example1/example1.m" },
+	Sources = { "src/examples/c/example1/example1.c" },
 	Depends = { "IMCocoa" },
 }
 
