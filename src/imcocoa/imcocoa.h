@@ -10,18 +10,18 @@ void IMCocoa_appRun();
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Window
 
-void* IMCocoa_windowCreate(const char* name, void (*uiCallback)(void*, void*), void* userData);
+void* IMCocoa_windowCreate(const char* name, void (*uiCallback)(void*), void* userData);
 void IMCocoa_windowDestroy(void* handle);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Controls
 // TODO: Better ID generation, but this will do for testing at least (note that this won't work for loops)
 
-#define IMCocoa_button(name, x, y, w, h) \
-	IMCocoa_buttonCall(__LINE__, parent, name, x, y, w, h) 
+#define IMCocoa_pushButton(name, x, y, w, h) \
+	IMCocoa_pushButtonCall(__LINE__, name, x, y, w, h) 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Controls implementian
 
-int IMCocoa_buttonCall(int id, void* parent, const char* name, int x, int y, int w, int h);
+int IMCocoa_pushButtonCall(int id, const char* name, int x, int y, int w, int h);
 

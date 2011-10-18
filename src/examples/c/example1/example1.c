@@ -4,14 +4,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void uiCallback(void* parent, void* userData)
+static void uiCallback(void* userData)
 {
-	if (IMCocoa_button("testing", 10, 10, 40, 20))
+	if (IMCocoa_pushButton("button", 10, 10, 140, 26))
 	{
 		printf("Pressed button!\n");
 	}
 
-	if (IMCocoa_button("testing 2", 10, 50, 40, 20))
+	if (IMCocoa_pushButton("button 2", 10, 50, 140, 26))
 	{
 		printf("Pressed button 2!\n");
 	}
