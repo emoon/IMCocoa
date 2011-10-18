@@ -26,7 +26,6 @@
 
 (cffi:defcfun ("IMCocoa_buttonCall" imcocoa-button) :int
 	(id :int)
-	(parent :pointer) 
 	(name :string) 
 	(x :int) 
 	(y :int) 
